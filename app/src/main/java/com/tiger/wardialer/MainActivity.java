@@ -225,6 +225,10 @@ public class MainActivity extends Activity {
     }
     public void openFile(String fileName) {
         File file = new File(directoryPath, fileName);
+        if (!file.exists()) {
+            textOutput.setText("No such file\n");
+            return;
+        }
         Uri uri = Uri.fromFile(file);
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
