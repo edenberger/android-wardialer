@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">WarDialer</string>
+    <string name="app_name">WarDialer Free</string>
+    <string name="banner_ad_unit_id">ca-app-pub-4973435656421259/3651190126</string>
+    <string name="interstitial_ad_unit_id">ca-app-pub-4973435656421259/1050977329</string>
 </resources>
