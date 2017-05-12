@@ -45,52 +45,52 @@
         android:layout_width="213dp"
         android:layout_height="43dp"
         android:layout_marginLeft="24dp"
+        android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
         android:ems="10"
         android:hint="First number"
-        android:inputType="number"
+        android:inputType="phone"
         app:layout_constraintLeft_toRightOf="@+id/areacodeStart"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginStart="24dp" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/areacodeEnd"
         android:layout_width="108dp"
         android:layout_height="43dp"
         android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:ems="10"
         android:hint="Area code"
-        android:inputType="number"
+        android:inputType="phone"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/areacodeStart"
-        android:layout_marginStart="16dp" />
+        app:layout_constraintTop_toBottomOf="@+id/areacodeStart" />
 
     <EditText
         android:id="@+id/areacodeStart"
         android:layout_width="108dp"
         android:layout_height="43dp"
         android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:ems="10"
         android:hint="Area code"
-        android:inputType="number"
+        android:inputType="phone"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginStart="16dp" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/rangeEnd"
         android:layout_width="213dp"
         android:layout_height="43dp"
         android:layout_marginLeft="26dp"
+        android:layout_marginStart="26dp"
         android:layout_marginTop="18dp"
         android:ems="10"
         android:hint="Last number"
-        android:inputType="number"
+        android:inputType="phone"
         app:layout_constraintLeft_toRightOf="@+id/areacodeEnd"
-        app:layout_constraintTop_toBottomOf="@+id/rangeStart"
-        android:layout_marginStart="26dp" />
+        app:layout_constraintTop_toBottomOf="@+id/rangeStart" />
 
     <NumberPicker
         android:id="@+id/secondsPicker"
