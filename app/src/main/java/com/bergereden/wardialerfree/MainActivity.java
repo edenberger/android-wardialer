@@ -3,6 +3,7 @@ package com.bergereden.wardialerfree;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -14,8 +15,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.CallLog;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -26,13 +27,10 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.TextView;
-
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.ads.identifier.AdvertisingIdClient;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -40,7 +38,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.math.BigInteger;
 
 public class MainActivity extends Activity {
 
@@ -150,96 +147,104 @@ public class MainActivity extends Activity {
         buttonOpen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openFile(areacodeStart.getText().toString() + rangeStart.getText().toString());
+                if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                    showError();
+                } else {
+                    openFile(areacodeStart.getText().toString() + rangeStart.getText().toString());
+                }
             }
         });
         buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
-                    new Thread(new Runnable() {
-                        public void run() {
-                            textOutput.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    textOutput.setText("Starting:\n");
-                                }
-                            });
-                            final String areaStart = areacodeStart.getText().toString();
-                            final String numStart = areaStart + rangeStart.getText().toString();
-                            final String numEnd = areacodeEnd.getText().toString() + rangeEnd.getText().toString();
-                            long longStart = 0;
-                            try {
-                                longStart = Long.valueOf(rangeStart.getText().toString());
-                            } catch (Exception e) {
-                                Log.e("Oh... ", "Something is definitely wrong");
-                            }
-                            final int seconds = secondsPicker.getValue();
-                            editor.putInt("seconds", seconds);
-                            editor.putString("areacodeStart", areacodeStart.getText().toString());
-                            editor.putString("areacodeEnd", areacodeEnd.getText().toString());
-                            editor.putString("rangeStart", rangeStart.getText().toString());
-                            editor.putString("rangeEnd", rangeEnd.getText().toString());
-                            editor.apply();
-                            long length = 0;
-                            try {
-                                length = Long.valueOf(numEnd.replaceAll("[*+]", "0")) - Long.valueOf(numStart.replaceAll("[*+]", "0"));
-                            } catch (Exception e){
-                                Log.e("Oh... ", "Something went horribly wrong");
-                            }
-
-                            for (int i = 0; i <= length; i++) {
-                                if (checkBox.isChecked()) {
-                                    break;
-                                }
-
-                                final long number = longStart + i;
+                if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                    showError();
+                } else {
+                    try {
+                        new Thread(new Runnable() {
+                            public void run() {
                                 textOutput.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        textOutput.append("Trying number: " + areaStart + number + "\n");
+                                        textOutput.setText("Starting:\n");
                                     }
                                 });
+                                final String areaStart = areacodeStart.getText().toString();
+                                final String numStart = areaStart + rangeStart.getText().toString();
+                                final String numEnd = areacodeEnd.getText().toString() + rangeEnd.getText().toString();
+                                long longStart = 0;
+                                try {
+                                    longStart = Long.valueOf(rangeStart.getText().toString());
+                                } catch (Exception e) {
+                                    Log.e("Oh... ", "Something is definitely wrong");
+                                }
+                                final int seconds = secondsPicker.getValue();
+                                editor.putInt("seconds", seconds);
+                                editor.putString("areacodeStart", areacodeStart.getText().toString());
+                                editor.putString("areacodeEnd", areacodeEnd.getText().toString());
+                                editor.putString("rangeStart", rangeStart.getText().toString());
+                                editor.putString("rangeEnd", rangeEnd.getText().toString());
+                                editor.apply();
+                                long length = 0;
+                                try {
+                                    length = Long.valueOf(numEnd.replaceAll("[*+]", "0")) - Long.valueOf(numStart.replaceAll("[*+]", "0"));
+                                } catch (Exception e) {
+                                    Log.e("Oh... ", "Something went horribly wrong");
+                                }
 
-                                call.setData(Uri.parse("tel:" + areaStart + number));
-                                startActivity(call);
-                                try {
-                                    Thread.sleep(seconds * 1000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                                if (manager.getMode() == AudioManager.MODE_IN_CALL) {
-                                    try {
-                                        hangup();
-                                    } catch (NoSuchMethodException e) {
-                                        e.printStackTrace();
-                                    } catch (ClassNotFoundException e) {
-                                        e.printStackTrace();
-                                    } catch (InvocationTargetException e) {
-                                        e.printStackTrace();
-                                    } catch (IllegalAccessException e) {
-                                        e.printStackTrace();
+                                for (int i = 0; i <= length; i++) {
+                                    if (checkBox.isChecked()) {
+                                        break;
                                     }
-                                }
-                                try {
-                                    Thread.sleep(3000);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                                if (LastCall() > 0) {
-                                    writeToFile(areaStart + number + "\n", numStart);
+
+                                    final long number = longStart + i;
                                     textOutput.post(new Runnable() {
                                         @Override
                                         public void run() {
-                                            textOutput.append(areaStart + number + " answered\n");
+                                            textOutput.append("Trying number: " + areaStart + number + "\n");
                                         }
                                     });
+
+                                    call.setData(Uri.parse("tel:" + areaStart + number));
+                                    startActivity(call);
+                                    try {
+                                        Thread.sleep(seconds * 1000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    if (manager.getMode() == AudioManager.MODE_IN_CALL) {
+                                        try {
+                                            hangup();
+                                        } catch (NoSuchMethodException e) {
+                                            e.printStackTrace();
+                                        } catch (ClassNotFoundException e) {
+                                            e.printStackTrace();
+                                        } catch (InvocationTargetException e) {
+                                            e.printStackTrace();
+                                        } catch (IllegalAccessException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    try {
+                                        Thread.sleep(3000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    if (LastCall() > 0) {
+                                        writeToFile(areaStart + number + "\n", numStart);
+                                        textOutput.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                textOutput.append(areaStart + number + " answered\n");
+                                            }
+                                        });
+                                    }
                                 }
                             }
-                        }
-                    }).start();
-                } catch (Exception e) {
-                    Log.e("Oh... ", "Something went terribly wrong");
+                        }).start();
+                    } catch (Exception e) {
+                        Log.e("Oh... ", "Something went terribly wrong");
+                    }
                 }
             }
         });
@@ -309,4 +314,20 @@ public class MainActivity extends Activity {
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivity(intent);
     }
+    private void showError() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Not enough permissions");
+
+        builder.setPositiveButton(
+                "I know",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
 }
