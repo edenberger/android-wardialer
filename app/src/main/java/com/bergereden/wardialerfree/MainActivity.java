@@ -19,6 +19,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
@@ -148,7 +149,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View view) {
                 if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                    showError();
+                    showError("Not enough permissions", "I know");
                 } else {
                     openFile(areacodeStart.getText().toString() + rangeStart.getText().toString());
                 }
@@ -158,7 +159,9 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View view) {
                 if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                    showError();
+                    showError("Not enough permissions", "I know");
+                } else if (TextUtils.isEmpty(rangeStart.getText().toString())) {
+                    showError("Please set range", "Ok");
                 } else {
                     try {
                         new Thread(new Runnable() {
@@ -194,6 +197,12 @@ public class MainActivity extends Activity {
 
                                 for (int i = 0; i <= length; i++) {
                                     if (checkBox.isChecked()) {
+                                        textOutput.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                textOutput.append("Stopped." + "\n");
+                                            }
+                                        });
                                         break;
                                     }
 
@@ -314,12 +323,12 @@ public class MainActivity extends Activity {
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivity(intent);
     }
-    private void showError() {
+    private void showError(String message, String button) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Not enough permissions");
+        builder.setMessage(message);
 
         builder.setPositiveButton(
-                "I know",
+                button,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
