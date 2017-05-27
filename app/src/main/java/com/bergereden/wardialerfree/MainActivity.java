@@ -21,10 +21,13 @@ import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.TextView;
@@ -49,7 +52,9 @@ public class MainActivity extends Activity {
     AudioManager manager;
     EditText rangeStart, rangeEnd, areacodeStart, areacodeEnd;
     Intent call = new Intent(Intent.ACTION_CALL);
+    NumberPicker secondsPicker;
     File directoryPath = new File(Environment.getExternalStoragePublicDirectory("Documents"), "WardialScans");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,13 +112,14 @@ public class MainActivity extends Activity {
         rangeStart = (EditText) findViewById(R.id.rangeStart);
         rangeEnd = (EditText) findViewById(R.id.rangeEnd);
         checkBox = (CheckBox) findViewById(R.id.stop);
+        secondsPicker = (NumberPicker) findViewById(R.id.secondsPicker);
         manager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         areacodeStart.setText(sharedPreferences.getString("areacodeStart", null));
         areacodeEnd.setText(sharedPreferences.getString("areacodeEnd", null));
         rangeStart.setText(sharedPreferences.getString("rangeStart", null));
         rangeEnd.setText(sharedPreferences.getString("rangeEnd", null));
         textOutput.setText(readFromFile(areacodeStart.getText().toString() + rangeStart.getText().toString()));
-        final NumberPicker secondsPicker = (NumberPicker) findViewById(R.id.secondsPicker);
+        textOutput.setMovementMethod(new ScrollingMovementMethod());
 
         secondsPicker.setMinValue(4);
         secondsPicker.setMaxValue(30);
@@ -150,8 +156,18 @@ public class MainActivity extends Activity {
             public void onClick(View view) {
                 if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
                     showError("Not enough permissions", "I know");
+                } else if (TextUtils.isEmpty(rangeStart.getText().toString()) || TextUtils.isEmpty(areacodeStart.getText().toString())) {
+                    showError("Please set range", "Ok");
                 } else {
                     openFile(areacodeStart.getText().toString() + rangeStart.getText().toString());
+                }
+            }
+        });
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    textOutput.append("Please wait for it to finish.\n");
                 }
             }
         });
@@ -160,7 +176,7 @@ public class MainActivity extends Activity {
             public void onClick(View view) {
                 if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
                     showError("Not enough permissions", "I know");
-                } else if (TextUtils.isEmpty(rangeStart.getText().toString())) {
+                } else if (TextUtils.isEmpty(rangeStart.getText().toString()) || TextUtils.isEmpty(areacodeStart.getText().toString())) {
                     showError("Please set range", "Ok");
                 } else {
                     try {
@@ -200,7 +216,8 @@ public class MainActivity extends Activity {
                                         textOutput.post(new Runnable() {
                                             @Override
                                             public void run() {
-                                                textOutput.append("Stopped." + "\n");
+                                                textOutput.append("Done." + "\n");
+                                                checkBox.setChecked(false);
                                             }
                                         });
                                         break;
@@ -313,7 +330,7 @@ public class MainActivity extends Activity {
     private void openFile(String fileName) {
         File file = new File(directoryPath, fileName);
         if (!file.exists()) {
-            textOutput.setText("No such file\n");
+            textOutput.setText("No such file - " + fileName + "\n");
             return;
         }
         Uri uri = Uri.fromFile(file);
