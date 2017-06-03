@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.CallLog;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -25,6 +26,8 @@ import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -48,12 +51,17 @@ public class MainActivity extends Activity {
     private AdView mAdView;
     TextView textOutput;
     CheckBox checkBox;
-    Button buttonStart, buttonOpen;
+    Button buttonStart;
     AudioManager manager;
     EditText rangeStart, rangeEnd, areacodeStart, areacodeEnd;
     Intent call = new Intent(Intent.ACTION_CALL);
     NumberPicker secondsPicker;
+    FloatingActionButton fab, fab1, fab2;
     File directoryPath = new File(Environment.getExternalStoragePublicDirectory("Documents"), "WardialScans");
+    Boolean isFabOpen = false;
+    Animation fab_open;
+    Animation fab_close;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,7 +113,6 @@ public class MainActivity extends Activity {
 
         textOutput = (TextView) findViewById(R.id.output);
         buttonStart = (Button) findViewById(R.id.start);
-        buttonOpen = (Button) findViewById(R.id.open);
         areacodeStart = (EditText) findViewById(R.id.areacodeStart);
         areacodeStart.requestFocus();
         areacodeEnd = (EditText) findViewById(R.id.areacodeEnd);
@@ -113,17 +120,24 @@ public class MainActivity extends Activity {
         rangeEnd = (EditText) findViewById(R.id.rangeEnd);
         checkBox = (CheckBox) findViewById(R.id.stop);
         secondsPicker = (NumberPicker) findViewById(R.id.secondsPicker);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         manager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         areacodeStart.setText(sharedPreferences.getString("areacodeStart", null));
         areacodeEnd.setText(sharedPreferences.getString("areacodeEnd", null));
         rangeStart.setText(sharedPreferences.getString("rangeStart", null));
         rangeEnd.setText(sharedPreferences.getString("rangeEnd", null));
-        textOutput.setText(readFromFile(areacodeStart.getText().toString() + rangeStart.getText().toString()));
+        textOutput.setText(readFromFile(areacodeStart.getText().toString() + rangeStart.getText().toString() + ".txt"));
         textOutput.setMovementMethod(new ScrollingMovementMethod());
 
-        secondsPicker.setMinValue(4);
+        secondsPicker.setMinValue(3);
         secondsPicker.setMaxValue(30);
         secondsPicker.setValue(sharedPreferences.getInt("seconds", 9));
+
+        fab = (FloatingActionButton)findViewById(R.id.fab);
+        fab1 = (FloatingActionButton)findViewById(R.id.fab1);
+        fab2 = (FloatingActionButton)findViewById(R.id.fab2);
+        fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
+        fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
 
         mAdView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
@@ -151,18 +165,6 @@ public class MainActivity extends Activity {
             public void afterTextChanged(Editable s) {}
         });
 
-        buttonOpen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                    showError("Not enough permissions", "I know");
-                } else if (TextUtils.isEmpty(rangeStart.getText().toString()) || TextUtils.isEmpty(areacodeStart.getText().toString())) {
-                    showError("Please set range", "Ok");
-                } else {
-                    openFile(areacodeStart.getText().toString() + rangeStart.getText().toString());
-                }
-            }
-        });
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -171,6 +173,66 @@ public class MainActivity extends Activity {
                 }
             }
         });
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isFabOpen) {
+                    fab1.startAnimation(fab_close);
+                    fab2.startAnimation(fab_close);
+                    fab1.setClickable(false);
+                    fab2.setClickable(false);
+                    isFabOpen = false;
+                } else {
+                    fab1.startAnimation(fab_open);
+                    fab2.startAnimation(fab_open);
+                    fab1.setClickable(true);
+                    fab2.setClickable(true);
+                    isFabOpen = true;
+                }
+            }
+        });
+
+        fab1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                    showError("Not enough permissions", "I know");
+                } else if (TextUtils.isEmpty(rangeStart.getText().toString()) || TextUtils.isEmpty(areacodeStart.getText().toString())) {
+                    showError("Please set range", "Ok");
+                } else {
+                    Intent intentShareFile = new Intent(Intent.ACTION_SEND);
+                    String path = directoryPath + "/" + areacodeStart.getText().toString() + rangeStart.getText().toString() + ".txt";
+
+                    File fileWithinMyDir = new File(path);
+
+                    if(fileWithinMyDir.exists()) {
+                        intentShareFile.setType("text/plain");
+                        intentShareFile.putExtra(Intent.EXTRA_STREAM, directoryPath + "/" + areacodeStart.getText().toString() + rangeStart.getText().toString());
+                        intentShareFile.putExtra(Intent.EXTRA_SUBJECT, "Sharing File...");
+                        intentShareFile.putExtra(Intent.EXTRA_TEXT, readFromFile(areacodeStart.getText().toString() + rangeStart.getText().toString() + ".txt"));
+                        startActivity(Intent.createChooser(intentShareFile, "Share File"));
+                    } else {
+                        textOutput.setText("No such file - " + fileWithinMyDir + "\n");
+                    }
+                }
+            }
+        });
+
+        fab2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                    showError("Not enough permissions", "I know");
+                } else if (TextUtils.isEmpty(rangeStart.getText().toString()) || TextUtils.isEmpty(areacodeStart.getText().toString())) {
+                    showError("Please set range", "Ok");
+                } else {
+                    String path = directoryPath + "/" + areacodeStart.getText().toString() + rangeStart.getText().toString() + ".txt";
+                    openFile(path);
+                }
+            }
+        });
+
         buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -257,7 +319,7 @@ public class MainActivity extends Activity {
                                         e.printStackTrace();
                                     }
                                     if (LastCall() > 0) {
-                                        writeToFile(areaStart + number + "\n", numStart);
+                                        writeToFile(areaStart + number + "\n", numStart + ".txt");
                                         textOutput.post(new Runnable() {
                                             @Override
                                             public void run() {
@@ -276,14 +338,14 @@ public class MainActivity extends Activity {
         });
     }
 
-    private int LastCall() {
+    private int LastCall() throws SecurityException {
         int callDuration = 0;
         Uri contacts = CallLog.Calls.CONTENT_URI;
         Cursor managedCursor = this.getContentResolver().query(contacts, null, null, null, null);
         assert managedCursor != null;
-        int duration1 = managedCursor.getColumnIndex( CallLog.Calls.DURATION);
-        if( managedCursor.moveToLast() ) {
-            callDuration = managedCursor.getInt( duration1 );
+        int duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION);
+        if(managedCursor.moveToLast()) {
+            callDuration = managedCursor.getInt(duration);
         }
         managedCursor.close();
         return callDuration;
@@ -328,7 +390,7 @@ public class MainActivity extends Activity {
         return text.toString();
     }
     private void openFile(String fileName) {
-        File file = new File(directoryPath, fileName);
+        File file = new File(fileName);
         if (!file.exists()) {
             textOutput.setText("No such file - " + fileName + "\n");
             return;

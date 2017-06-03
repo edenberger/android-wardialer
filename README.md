@@ -11,6 +11,5 @@ Thanks to [Digitalwhisper](https://www.digitalwhisper.co.il) magazine for the qu
 
 Screenshots:
 
-![alt text](Screenshot_first.png)
-![alt text](Screenshot_blurred.png)
-![alt text](Screenshot_blurred0.png)
+![alt text](Screenshot_20170603-1337.png)
+![alt text](Screenshot_Blurred.png)

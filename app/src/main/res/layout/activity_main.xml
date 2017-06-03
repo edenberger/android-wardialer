@@ -5,31 +5,22 @@
     xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackground"
     tools:context="com.bergereden.wardialerfree.MainActivity">
-
-    <Button
-        android:id="@+id/open"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Open file"
-        android:layout_marginStart="32dp"
-        app:layout_constraintLeft_toRightOf="@+id/start"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="2dp"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.918"
-        android:layout_marginBottom="71dp" />
 
     <Button
         android:id="@+id/start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="71dp"
-        android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
+        android:background="@drawable/button"
         android:text="Scan"
+        android:paddingRight="6dp"
+        android:paddingTop="35dp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="56dp"
+        android:layout_marginLeft="16dp"
         app:layout_constraintLeft_toLeftOf="parent" />
 
     <TextView
@@ -104,30 +95,15 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rangeEnd" />
 
-    <TextView
-        android:id="@+id/seconds"
-        android:layout_width="69dp"
-        android:layout_height="44dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="0dp"
-        android:background="@null"
-        android:ems="10"
-        android:inputType="textMultiLine"
-        android:text="Seconds to wait"
-        android:textAlignment="center"
-        android:textSize="12sp"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rangeEnd" />
-
     <CheckBox
         android:id="@+id/stop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
         android:layout_marginRight="16dp"
         android:text="Stop"
-        app:layout_constraintBottom_toTopOf="@+id/open"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/fab" />
 
     <com.google.android.gms.ads.AdView
         android:id="@+id/adView"
@@ -141,5 +117,60 @@
         ads:adUnitId="@string/banner_ad_unit_id"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="@+id/start"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="66dp"
+        android:layout_marginRight="16dp"
+        ads:backgroundTint="?android:attr/colorBackground"
+        ads:layout_constraintBottom_toBottomOf="parent"
+        ads:layout_constraintRight_toRightOf="parent"
+        ads:srcCompat="@android:drawable/ic_menu_share" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="16dp"
+        android:src="@android:drawable/ic_menu_upload_you_tube"
+        android:visibility="invisible"
+        ads:backgroundTint="@android:color/background_light"
+        ads:layout_constraintBottom_toTopOf="@+id/fab"
+        ads:layout_constraintRight_toRightOf="parent"
+        app:elevation="6dp"
+        app:pressedTranslationZ="12dp" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+
+        android:layout_marginBottom="66dp"
+        android:layout_marginRight="21dp"
+        android:src="@android:drawable/ic_dialog_email"
+        android:visibility="invisible"
+        ads:backgroundTint="@android:color/background_light"
+        ads:layout_constraintBottom_toBottomOf="parent"
+        ads:layout_constraintRight_toLeftOf="@+id/fab"
+        app:elevation="6dp"
+        app:pressedTranslationZ="12dp" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="83dp"
+        android:layout_height="36dp"
+        android:text="Seconds to wait"
+        android:textAlignment="center"
+        android:textSize="14sp"
+        android:layout_marginRight="16dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/rangeEnd" />
 
 </android.support.constraint.ConstraintLayout>
