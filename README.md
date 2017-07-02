@@ -7,7 +7,7 @@ Thanks to [Digitalwhisper](https://www.digitalwhisper.co.il) magazine for the qu
 
 [Playstore](https://play.google.com/store/apps/details?id=com.bergereden.wardialerfree) - Free
 
-[Playstore](https://play.google.com/store/apps/details?id=com.tiger.wardialer) - $1
+[Playstore](https://play.google.com/store/apps/details?id=com.bergereden.wardialer) - $1
 
 Screenshots:
 
